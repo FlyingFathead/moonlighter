@@ -1,5 +1,5 @@
 # moonlighter
-Miniature beep-boop MIDI player for Python
+Miniature beep-boop MIDI player for Python. Good for audio alerts, debugging and such!
 
 # Usage
 ## Quick deployment 
@@ -21,3 +21,5 @@ python moonlighter.py /path/to/your/midi/file.mid --dump output.mp3
 ```
 
 # Info
+- by FlyingFathead (w/ ghostcode by ChaosWhisperer)
+- https://github.com/FlyingFathead/moonlighter/
