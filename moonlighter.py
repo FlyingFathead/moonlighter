@@ -2,19 +2,22 @@
 # flyingfathead (& chaoswhisperer) // nov 26 2023
 # https://github.com/FlyingFathead/moonlighter
 
-version_num = "1.05"
+version_num = "1.06"
 
 import os
 import shutil
 import sys
 import subprocess
 import requests
-import numpy as np
-import sounddevice as sd
-import soundfile as sf
-import mido
 import argparse
-from pydub import AudioSegment
+
+def lazy_imports():
+    global np, sd, sf, mido, AudioSegment
+    import numpy as np
+    import sounddevice as sd
+    import soundfile as sf
+    import mido
+    from pydub import AudioSegment
 
 # print term width horizontal line
 def h_line(character='-'):
@@ -125,8 +128,10 @@ if __name__ == "__main__":
 
         Enjoy the Moonlight ...
         """, flush=True)
+        lazy_imports()  # Import packages after installation        
         read_and_process_midi(midi_filename, dump=bool(args.dump), dump_file=args.dump if args.dump not in [True, False] else None)
     elif args.midi_file:
+        lazy_imports()  # Import packages after installation
         read_and_process_midi(args.midi_file, dump=bool(args.dump), dump_file=args.dump if args.dump not in [True, False] else None)
     else:
         parser.print_help()
