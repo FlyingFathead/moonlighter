@@ -2,7 +2,7 @@
 # flyingfathead (& chaoswhisperer) // nov 26 2023
 # https://github.com/FlyingFathead/moonlighter
 
-version_num = "1.07"
+version_num = "1.08"
 
 import os
 import shutil
@@ -82,13 +82,14 @@ def read_and_process_midi(file_path, sample_rate=44100, dump=False, dump_file=No
         audio_buffer = np.clip(audio_buffer, -1, 1)
 
         if dump:
-            h_line()
-            print(f'Dumping audio to: {output_file} ...')
+            # Define output_file before using it in print statement
             output_file = dump_file if dump_file else file_path.rsplit('.', 1)[0] + '.mp3'
+            h_line()
+            print(f'Dumping audio to: {output_file} ...', flush=True)
             sf.write('temp.wav', audio_buffer, sample_rate)
             audio_segment = AudioSegment.from_wav('temp.wav')
             audio_segment.export(output_file, format='mp3')
-            print(f'Audio dumped to: {output_file}')
+            print(f'Audio dumped to: {output_file}', flush=True)
             h_line()
         else:
             sd.play(audio_buffer, sample_rate)
