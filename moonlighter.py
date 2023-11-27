@@ -2,14 +2,23 @@
 # flyingfathead (& chaoswhisperer) // nov 26 2023
 # https://github.com/FlyingFathead/moonlighter
 
-version_num = "1.08"
+version_num = "1.16"
 
 import os
 import shutil
 import sys
 import subprocess
-import requests
 import argparse
+import threading
+import time
+
+# Global flag to indicate skip
+skip_flag = False
+
+def listen_for_skip():
+    global skip_flag
+    input("Press <CTRL-C> to skip the current movement...")
+    skip_flag = True
 
 def lazy_imports():
     global np, sd, sf, mido, AudioSegment
@@ -17,6 +26,7 @@ def lazy_imports():
     import sounddevice as sd
     import soundfile as sf
     import mido
+    import requests
     from pydub import AudioSegment
 
 # print term width horizontal line
@@ -26,7 +36,7 @@ def h_line(character='-'):
     print(line, flush=True)
 
 def install_packages():
-    packages = ["numpy", "sounddevice", "soundfile", "mido", "pydub"]
+    packages = ["numpy", "sounddevice", "soundfile", "mido", "pydub", "requests"]
     for package in packages:
         subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
@@ -46,6 +56,8 @@ def ticks_to_seconds(ticks, ticks_per_beat, tempo):
     return ticks / ticks_per_beat * (tempo / 1000000.0)
 
 def read_and_process_midi(file_path, sample_rate=44100, dump=False, dump_file=None, note_length=1.0):
+    global skip_flag
+    lazy_imports()  # Ensure all required modules are imported    
     try:
         midi = mido.MidiFile(file_path)
         ticks_per_beat = midi.ticks_per_beat
@@ -92,8 +104,13 @@ def read_and_process_midi(file_path, sample_rate=44100, dump=False, dump_file=No
             print(f'Audio dumped to: {output_file}', flush=True)
             h_line()
         else:
+            sys.stdout.flush()  # Explicitly flush the output before playback            
             sd.play(audio_buffer, sample_rate)
-            sd.wait()
+            while sd.get_stream().active:  # Check if the stream is still playing
+                if skip_flag:  # Check if the skip flag is set
+                    sd.stop()  # Stop the playback
+                    break
+                time.sleep(0.1)  # Short sleep to prevent high CPU usage
     except KeyboardInterrupt:
         print("\nPlayback interrupted.")
 
@@ -107,34 +124,55 @@ if __name__ == "__main__":
 
     if args.deploy:
         h_line()
-        print("::: Deploying Moonlighter...")
+        print(f"::: Deploying Moonlighter v.{version_num}...")
         h_line()
+
         install_packages()
-        midi_url = "http://www.piano-midi.de/midis/beethoven/mond_1.mid"
-        midi_filename = "mond_1.mid"
-        h_line()
-        print("::: Downloading MIDI...")
-        download_midi(midi_url, midi_filename)
-        print(f"::: MIDI file downloaded: {midi_filename}")
+
         h_line()
         print("""
-             . - ^ ~ * ~ ^ - .
-         , '                   ' ,
-        :                       :
-        :      .      .      .   :
-        :    '   .  "   . '    ' :
-         :   ~  MOONLIGHTER  ~   :
-          : , '             ' , :
-           ' .               . '
-             ' - . _ _ _ . - '
+            . - ^ ~ * ~ ^ - .
+        , '                   ' ,
+       :                        :
+       :      .      .      .   :
+       :    '   .  "   . '    ' :
+       :   ~  MOONLIGHTER  ~    :
+        : , '              ' , :
+        ' .                 . '
+            ' - . _ _ _ . - '
 
         Enjoy the Moonlight ...
         """, flush=True)
-        lazy_imports()  # Import packages after installation        
-        read_and_process_midi(midi_filename, dump=bool(args.dump), dump_file=args.dump if args.dump not in [True, False] else None)
+        h_line()
+        print("[INFO] Press <CTRL-C> to skip a movement...", flush=True)
+        h_line()
+
+        # URLs for all three movements
+        midi_urls = ["http://www.piano-midi.de/midis/beethoven/mond_1.mid",
+                    "http://www.piano-midi.de/midis/beethoven/mond_2.mid",
+                    "http://www.piano-midi.de/midis/beethoven/mond_3.mid"]
+        midi_filenames = ["mond_1.mid", "mond_2.mid", "mond_3.mid"]
+
+        # Download and play each movement
+        for i, (url, filename) in enumerate(zip(midi_urls, midi_filenames), start=1):
+            print(f"::: Downloading Moonlight Sonata, movement {i}...")
+            download_midi(url, filename)
+            print(f"::: Movement {i} downloaded: {filename}")
+
+            # Adjust note length for the third movement
+            notelength = 0.1 if i == 3 else args.notelength
+            print(f"::: Playing Moonlight Sonata, movement {i}...")
+            read_and_process_midi(filename, sample_rate=44100, dump=bool(args.dump), 
+                                dump_file=args.dump if args.dump not in [True, False] else None, 
+                                note_length=notelength)
+
+        h_line()
+    
     elif args.midi_file:
         lazy_imports()  # Import packages after installation
         # read_and_process_midi(args.midi_file, dump=bool(args.dump), dump_file=args.dump if args.dump not in [True, False] else None)
-        read_and_process_midi(args.midi_file, sample_rate=44100, dump=bool(args.dump), dump_file=args.dump if args.dump not in [True, False] else None, note_length=args.notelength)
+        read_and_process_midi(args.midi_file, sample_rate=44100, dump=bool(args.dump), 
+                          dump_file=args.dump if args.dump not in [True, False] else None, 
+                          note_length=args.notelength)
     else:
         parser.print_help()
