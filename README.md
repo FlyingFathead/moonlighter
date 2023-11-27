@@ -24,10 +24,20 @@ Play with your favorite midi file:
 ```bash
 python moonlighter.py /path/to/your/midi/file.mid
 ```
+
+## Other features
 Dump the midi to mp3:
 ```bash
 python moonlighter.py /path/to/your/midi/file.mid --dump output.mp3
 ```
+Adjust the beeps and boops, a.k.a. note length (in seconds):
+```bash
+python moonlighter.py /path/to/your/midi/file.mid --notelength 0.1
+```
+_(adjusts the note length to 0.1 sec)_
+
+# Changelog
+- `v1.07` - Note length adjustment with `--notelength` added
 
 # Info
 - by FlyingFathead (w/ ghostcode by ChaosWhisperer)
