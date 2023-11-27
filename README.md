@@ -18,8 +18,10 @@ cd moonlighter
 ```
 install the prerequisite `pip` packages:
 ```bash
-pip install -U numpy sounddevice soundfile mido pydub
+pip install -U numpy sounddevice soundfile mido pydub requests
 ```
+(`requests` is only used by `--deploy`, but it's a recommended module)
+
 Play with your favorite midi file:
 ```bash
 python moonlighter.py /path/to/your/midi/file.mid
