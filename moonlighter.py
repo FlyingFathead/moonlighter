@@ -41,7 +41,7 @@ def install_packages():
         subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 def download_midi(url, filename):
-    lazy_imports()
+    import requests
     response = requests.get(url)
     with open(filename, 'wb') as file:
         file.write(response.content)
