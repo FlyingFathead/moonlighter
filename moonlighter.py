@@ -41,7 +41,7 @@ def install_packages():
         subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 def download_midi(url, filename):
-    import requests
+    lazy_imports()
     response = requests.get(url)
     with open(filename, 'wb') as file:
         file.write(response.content)
@@ -153,6 +153,8 @@ if __name__ == "__main__":
                     "http://www.piano-midi.de/midis/beethoven/mond_2.mid",
                     "http://www.piano-midi.de/midis/beethoven/mond_3.mid"]
         midi_filenames = ["mond_1.mid", "mond_2.mid", "mond_3.mid"]
+
+        lazy_imports()
 
         # Download and play each movement
         for i, (url, filename) in enumerate(zip(midi_urls, midi_filenames), start=1):
