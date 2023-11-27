@@ -2,7 +2,7 @@
 Miniature beep-boop MIDI player for Python. Good for audio alerts, debugging and such!
 
 ## Usage
-Single-line install for *nix + Git Bash (installs all required Python packages, downloads 'Moonlight Sonata' and plays it):
+Single-line install for *nix + Git Bash (installs all required Python packages, downloads 'Moonlight Sonata' and plays all three movements of it):
 ```bash
 git clone https://github.com/FlyingFathead/moonlighter/ && cd moonlighter && python moonlighter.py --deploy
 ```
