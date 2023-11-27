@@ -2,7 +2,7 @@
 # flyingfathead (& chaoswhisperer) // nov 26 2023
 # https://github.com/FlyingFathead/moonlighter
 
-version_num = "1.06"
+version_num = "1.07"
 
 import os
 import shutil
@@ -45,7 +45,7 @@ def generate_sine_wave(freq, duration, sample_rate=44100):
 def ticks_to_seconds(ticks, ticks_per_beat, tempo):
     return ticks / ticks_per_beat * (tempo / 1000000.0)
 
-def read_and_process_midi(file_path, sample_rate=44100, dump=False, dump_file=None):
+def read_and_process_midi(file_path, sample_rate=44100, dump=False, dump_file=None, note_length=1.0):
     try:
         midi = mido.MidiFile(file_path)
         ticks_per_beat = midi.ticks_per_beat
@@ -73,8 +73,8 @@ def read_and_process_midi(file_path, sample_rate=44100, dump=False, dump_file=No
 
                 if not msg.is_meta and msg.type == 'note_on' and msg.velocity > 0:
                     freq = midi_to_freq(msg.note)
-                    duration = 1  # Fixed duration
-                    sine_wave = generate_sine_wave(freq, duration, sample_rate)
+                    # Use the provided note_length for the duration of each note
+                    sine_wave = generate_sine_wave(freq, note_length, sample_rate)
                     start_index = int(current_time * sample_rate)
                     end_index = min(start_index + len(sine_wave), len(audio_buffer))
                     audio_buffer[start_index:end_index] += sine_wave[:end_index - start_index]
@@ -101,6 +101,7 @@ if __name__ == "__main__":
     parser.add_argument("midi_file", type=str, nargs='?', default=None, help="Path to the MIDI file. Required if not using --deploy.")
     parser.add_argument("--dump", nargs='?', const=True, default=False, help="Dump output to MP3. Optionally provide a filename for the MP3.")
     parser.add_argument("--deploy", action="store_true", help="Automatically deploy: Installs required packages, downloads 'Moonlight Sonata', and plays.")
+    parser.add_argument("--notelength", type=float, default=1.0, help="Length of each note in seconds. Default is 1.0 seconds.")
     args = parser.parse_args()
 
     if args.deploy:
@@ -132,6 +133,7 @@ if __name__ == "__main__":
         read_and_process_midi(midi_filename, dump=bool(args.dump), dump_file=args.dump if args.dump not in [True, False] else None)
     elif args.midi_file:
         lazy_imports()  # Import packages after installation
-        read_and_process_midi(args.midi_file, dump=bool(args.dump), dump_file=args.dump if args.dump not in [True, False] else None)
+        # read_and_process_midi(args.midi_file, dump=bool(args.dump), dump_file=args.dump if args.dump not in [True, False] else None)
+        read_and_process_midi(args.midi_file, sample_rate=44100, dump=bool(args.dump), dump_file=args.dump if args.dump not in [True, False] else None, note_length=args.notelength)
     else:
         parser.print_help()
