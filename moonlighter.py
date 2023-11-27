@@ -41,6 +41,7 @@ def install_packages():
         subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 def download_midi(url, filename):
+    global np, sd, sf, mido, AudioSegment, requests  # Include requests in global scope
     lazy_imports()
     response = requests.get(url)
     with open(filename, 'wb') as file:
