@@ -37,6 +37,7 @@ python moonlighter.py /path/to/your/midi/file.mid --notelength 0.1
 _(adjusts the note length to 0.1 sec)_
 
 # Changelog
+- `v1.08` - small bug fixes (mp3 export bug)
 - `v1.07` - Note length adjustment with `--notelength` added
 
 # Info
